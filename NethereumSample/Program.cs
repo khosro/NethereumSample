@@ -1,13 +1,15 @@
-﻿using Nethereum.Hex.HexTypes;
+﻿using NBitcoin;
+using Nethereum.HdWallet;
+using Nethereum.Hex.HexTypes;
 using Nethereum.RPC.Eth.DTOs;
 using Nethereum.Web3;
+using Nethereum.Web3.Accounts;
 using Newtonsoft.Json;
 using System;
 using System.Net.Http;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
-
 namespace NethereumSample
 {
     internal class Program
@@ -17,10 +19,48 @@ namespace NethereumSample
             //AsyncContext.Run(Web3);
             //var task = Task.Run(async () => await Web3());
 
-            GetLastedBlockAsync().GetAwaiter().GetResult();
+            //SyncStatus().GetAwaiter().GetResult();
 
-            SyncStatus().GetAwaiter().GetResult();
+            HdWallet();
+
+            Console.ReadLine();
         }
+
+        private static void HdWallet()
+        {
+            string words = "ripple scissors kick mammal hire column oak again sun offer wealth tomorrow wagon turn fatal";
+            string password = "";
+            Wallet wallet1 = new Wallet(words, password);
+            Console.WriteLine($"Path : {wallet1.Path}");
+            for (int i = 0; i < 10; i++)
+            {
+                Account account = wallet1.GetAccount(i);
+                Console.WriteLine("Account index : " + i + " - Address : " + account.Address + " - Private key : " + account.PrivateKey);
+            }
+
+            MasterPublicKeyAndPrivateKey(Network.Main, words, password);
+            MasterPublicKeyAndPrivateKey(Network.TestNet, words, password);
+            MasterPublicKeyAndPrivateKey(Network.RegTest, words, password);
+        }
+
+        private static void MasterPublicKeyAndPrivateKey(Network net, string words, string password)
+        {
+            //  Mnemonic mnemo = new Mnemonic(Wordlist.English, WordCount.Twelve);
+            Mnemonic mnemo = new Mnemonic(words);
+            ExtKey extKey = mnemo.DeriveExtKey(password);
+
+            ExtKey masterKey = extKey.Derive(new NBitcoin.KeyPath("m/44'/60'/0'/0"));
+            string masterPublicKey = masterKey.Neuter().GetWif(net).ToString();
+            string masterPrivateKey = masterKey.GetWif(net).ToString();
+            
+            
+            Console.WriteLine($"");
+            Console.WriteLine($"MasterPrivateKey : {net.ToString()} {masterPrivateKey} ");
+            Console.WriteLine($"MasterPublicKey  : {net.ToString()} {masterPublicKey} ");
+            Console.WriteLine($"");
+        }
+
+
 
         private static async Task SyncStatus()
         {
