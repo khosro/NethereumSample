@@ -23,15 +23,28 @@ namespace NethereumSample
             //AsyncContext.Run(Web3);
             //var task = Task.Run(async () => await Web3());
 
+            var task = Task.Run(async () => await Confirmation());
+
             //SyncStatus().GetAwaiter().GetResult();
 
-            //HdWallet();
+            // HdWallet(args[0]);
 
-            HdWallet1();
+            //  HdWallet1();
 
-            Drive();
+            //  Drive();
 
             Console.ReadLine();
+        }
+
+
+        static async Task Confirmation()
+        {
+            Web3 web = new Web3("http://localhost:8510");
+            string txid = "0x3b8e1902c0ad9ca92da71b4802cfd451ff616a56dc3e69319d51cb0ae91c2a13";
+            Nethereum.RPC.Eth.DTOs.Transaction trans = await web.Eth.Transactions.GetTransactionByHash.SendRequestAsync(txid).ConfigureAwait(false);
+
+            var blocknumber = await web.Eth.Blocks.GetBlockNumber.SendRequestAsync().ConfigureAwait(false);
+            Console.WriteLine($"Confirmation :  {blocknumber.Value - trans.BlockNumber.Value}");
         }
 
         #region From BtcPayserver
@@ -73,11 +86,11 @@ namespace NethereumSample
         #endregion
 
         #region Ethereum Hd Wallet
-        private static void HdWallet()
+        private static void HdWallet(string words)
         {
-            string words = "ripple scissors kick mammal hire column oak again sun offer wealth tomorrow wagon turn fatal";
-
-            string password = "";
+            string password = null;
+            words = words.Trim();
+            Console.WriteLine($"Words : {words}");
             Wallet wallet1 = new Wallet(words, password);
             Console.WriteLine($"Path : {wallet1.Path}");
             for (int i = 0; i < 10; i++)
@@ -118,8 +131,7 @@ namespace NethereumSample
 
 
             string Path = "m/44'/60'/0'/0/x";
-            string words = "ripple scissors kick mammal hire column oak again sun offer wealth tomorrow wagon turn fatal";
-              words = "great cash inform total move frozen chase imitate ten shell raven elegant";
+            string words = "";
             var mneumonic = new Mnemonic(words);
             var seed = mneumonic.DeriveSeed("123456@a").ToHex();
             var masterKey = new ExtKey(seed);
@@ -130,7 +142,7 @@ namespace NethereumSample
                 ExtKey extKey = masterKey.Derive(keyPath);
                 byte[] privateKey = extKey.PrivateKey.ToBytes();
                 var account = new Account(privateKey);
- 
+
                 Console.WriteLine("Account index : " + i + " - Address : " + account.Address + " - Private key : " + account.PrivateKey);
             }
         }

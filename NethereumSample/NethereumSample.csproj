@@ -6,17 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NBitcoin" Version="4.2.7" />
+    <PackageReference Include="NBitcoin" Version="4.2.14" />
+    <PackageReference Include="NBXplorer.Client" Version="2.0.0.19" />
     <PackageReference Include="Nethereum.HdWallet" Version="3.4.0" />
     <PackageReference Include="Nethereum.Web3" Version="3.4.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="Nito.AsyncEx" Version="5.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\btcpayserver\NBitcoin\NBitcoin-4.1.3\NBitcoin.Altcoins\NBitcoin.Altcoins.csproj" />
-    <ProjectReference Include="..\..\..\btcpayserver\NBitcoin\NBitcoin-4.1.3\NBitcoin\NBitcoin.csproj" />
-    <ProjectReference Include="..\..\..\btcpayserver\NBXplorer\NBXplorer.Client\NBXplorer.Client.csproj" />
   </ItemGroup>
 
 </Project>
