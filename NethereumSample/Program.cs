@@ -27,7 +27,9 @@ namespace NethereumSample
 
             // HDWalletSampleRun(args);
 
-            WebSocketsStreamingSampleRun();
+            //WebSocketsStreamingSampleRun();
+
+            HDWalletSampleAltCoin.MasterPublicKeyAndPrivateKeyGen();
 
             Console.ReadLine();
         }
