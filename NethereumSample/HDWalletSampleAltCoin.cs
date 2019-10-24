@@ -13,6 +13,7 @@ using System.Net.Http;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using NBitcoin.Altcoins;
 namespace NethereumSample
 {
     public class HDWalletSampleAltCoin
@@ -23,6 +24,10 @@ namespace NethereumSample
 
             words = "cotton maid write chase short daring regular ensure tobacco nature teach choose";
 
+            words = "wash december flock cinnamon lava battle wreck you tone file easy midnight";
+
+            words = "object sand mutual custom dove ghost display arrest session theme express apple";//test server store mylasttest
+
 
             //MasterPublicKeyAndPrivateKey("m/44'/60'/0'/0", Network.Main, words, null);
 
@@ -30,25 +35,52 @@ namespace NethereumSample
 
             //  MasterPublicKeyAndPrivateKey1(Network.RegTest, words, null);
 
-            CorrectOne("m/44'/0'/0'", Network.RegTest, words, null);
+            #region Works
 
-            //CorrectOne("m/44'/0'/0'", Network.Main, words, null);
+            /* CorrectOne("m/44'/0'/0'", Network.TestNet, words, ScriptPubKeyType.Segwit, null);//BTC This old one
+
+             CorrectOne("m/44'/0'/0'", Network.Main, words, ScriptPubKeyType.Segwit, null);//BTC 
+             CorrectOne("m/44'/1'/0'", Network.TestNet, words, ScriptPubKeyType.Segwit, null);//BTC
+
+             CorrectOne("m/44'/5'/0'", Dash.Instance.Mainnet, words, ScriptPubKeyType.Legacy, null);//Dash
+             CorrectOne("m/44'/1'/0'", Dash.Instance.Testnet, words, ScriptPubKeyType.Legacy, null);//Dash
+
+
+
+             CorrectOne("m/44'/2'/0'", Litecoin.Instance.Mainnet, words, ScriptPubKeyType.Segwit, null);//LTC */
+            CorrectOne("m/44'/1'/0'", Litecoin.Instance.Testnet, words, ScriptPubKeyType.Segwit, null);//LTC
+
+            #endregion
 
         }
 
 
-        static void CorrectOne(string basePath, Network net, string words, string password)
+        static void CorrectOne(string basePath, Network net, string words, ScriptPubKeyType scriptPubKeyType, string password)
         {
+            Console.WriteLine("-------------------------------------");
+
             //https://stackoverflow.com/questions/46550818/nbitcoin-and-mnemonic-standards
             Mnemonic mnemo = new Mnemonic(words, Wordlist.English);
             ExtKey hdroot = mnemo.DeriveExtKey();
+
+            Console.WriteLine($" basePath: {basePath}");
+            Console.WriteLine($" words: {words}");
+            Console.WriteLine();
+
+            /* Console.WriteLine("Master key 11111 : " + hdroot.ToString(net));
+             ExtPubKey masterPubKey = hdroot.Neuter();
+             Console.WriteLine("Master PubKey  " + masterPubKey.ToString(net));
+             Console.WriteLine();
+             Console.WriteLine();
+             */
             for (int i = 0; i < 10; i++)
             {
                 var firstprivkey = hdroot.Derive(new NBitcoin.KeyPath(basePath + "/0/" + i.ToString()));
                 var firstpubKey = firstprivkey.Neuter().PubKey;
                 var privateKey = firstprivkey.Neuter().GetWif(net);
-                var address = firstpubKey.GetAddress(ScriptPubKeyType.Legacy, net).ToString();
+                var address = firstpubKey.GetAddress(scriptPubKeyType, net).ToString();
                 Console.WriteLine($"{ net.ToString() } , public key : { address} , privateKey {privateKey}");
+                Console.WriteLine("");
             }
 
 
