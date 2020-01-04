@@ -37,28 +37,80 @@ namespace NethereumSample
 
             #region Works
 
-            CreateMnemonic();
+            //CreateMnemonic();
 
-            HdWalletEthereum(words, Network.TestNet);
+            //HdWalletEthereum(words, Network.TestNet);
 
-            CorrectOne("m/44'/0'/0'", Network.TestNet, words, ScriptPubKeyType.Segwit, null);//BTC This old one
+            TestMySelf();
 
-            /* CorrectOne("m/44'/0'/0'", Network.Main, words, ScriptPubKeyType.Segwit, null);//BTC 
-             CorrectOne("m/44'/1'/0'", Network.TestNet, words, ScriptPubKeyType.Segwit, null);//BTC
+            /*  CorrectOne("m/44'/0'/0'", Network.TestNet, words, ScriptPubKeyType.Segwit);//BTC This old one
 
-             CorrectOne("m/44'/5'/0'", Dash.Instance.Mainnet, words, ScriptPubKeyType.Legacy, null);//Dash
-             CorrectOne("m/44'/1'/0'", Dash.Instance.Testnet, words, ScriptPubKeyType.Legacy, null);//Dash
+             CorrectOne("m/44'/0'/0'", Network.Main, words, ScriptPubKeyType.Segwit);//BTC 
+              CorrectOne("m/44'/1'/0'", Network.TestNet, words, ScriptPubKeyType.Segwit);//BTC
+
+              CorrectOne("m/44'/5'/0'", Dash.Instance.Mainnet, words, ScriptPubKeyType.Legacy);//Dash
+              CorrectOne("m/44'/1'/0'", Dash.Instance.Testnet, words, ScriptPubKeyType.Legacy);//Dash
 
 
 
-             CorrectOne("m/44'/2'/0'", Litecoin.Instance.Mainnet, words, ScriptPubKeyType.Segwit, null);//LTC 
-            CorrectOne("m/44'/1'/0'", Litecoin.Instance.Testnet, words, ScriptPubKeyType.Segwit, null);//LTC*/
+              CorrectOne("m/44'/2'/0'", Litecoin.Instance.Mainnet, words, ScriptPubKeyType.Segwit);//LTC 
+             CorrectOne("m/44'/1'/0'", Litecoin.Instance.Testnet, words, ScriptPubKeyType.Segwit);//LTC*/
 
 
             //GenerateAddress("m/44'/0'/0'", Network.TestNet, words, ScriptPubKeyType.Segwit);
 
             #endregion
 
+        }
+
+        static void TestMySelf()//Remove it
+        {
+            string words = "broccoli flight twist burger scrap burst ship jazz negative ridge universe curve";//This main wallet 
+            string pass = "60c85fbe-481a-484b-b771-b9c58f8f8450";
+
+            words = "object sand mutual custom dove ghost display arrest session theme express apple";//test server store mylasttest
+            pass = null;
+
+            CorrectOne("m/44'/1'/0'", Network.RegTest, words, ScriptPubKeyType.Segwit, pass);
+        }
+
+
+        static void CorrectOne(string basePath, Network net, string words, ScriptPubKeyType scriptPubKeyType, string password = null)
+        {
+            Console.WriteLine("-------------------------------------");
+            Console.WriteLine($" basePath: {basePath}");
+            Console.WriteLine($" words: {words}");
+            Console.WriteLine();
+            //https://stackoverflow.com/questions/46550818/nbitcoin-and-mnemonic-standards
+            Mnemonic mnemo = new Mnemonic(words, Wordlist.English);
+            ExtKey hdroot = mnemo.DeriveExtKey(password);
+            for (int i = 0; i < 10; i++)
+            {
+                var privkey = hdroot.Derive(new NBitcoin.KeyPath(basePath + "/0/" + i.ToString()));
+                var publicKey = privkey.Neuter().PubKey;
+                var privateKey = privkey.Neuter().GetWif(net);
+                var address = publicKey.GetAddress(scriptPubKeyType, net).ToString();
+                Console.WriteLine($"{ net.ToString() } , public key : { address} , privateKey {privateKey}");
+                Console.WriteLine("");
+            }
+
+
+            ExtKey masterKey = hdroot.Derive(new NBitcoin.KeyPath(basePath));
+            string masterPublicKey = masterKey.Neuter().GetWif(net).ToString();
+            string masterPrivateKey = masterKey.GetWif(net).ToString();
+            Console.WriteLine($"");
+            Console.WriteLine($"MasterPrivateKey : {net.ToString()} {masterPrivateKey} ");
+            Console.WriteLine($"MasterPublicKey  : {net.ToString()} {masterPublicKey} ");
+            Console.WriteLine($"");
+            Console.WriteLine("-------------------------------------");
+
+
+            /* Console.WriteLine("Master key 11111 : " + hdroot.ToString(net));
+             ExtPubKey masterPubKey = hdroot.Neuter();
+             Console.WriteLine("Master PubKey  " + masterPubKey.ToString(net));
+             Console.WriteLine();
+             Console.WriteLine();
+             */
         }
 
         public static void HdWalletEthereum(string words, Network net)
@@ -107,43 +159,6 @@ namespace NethereumSample
         }
 
 
-        static void CorrectOne(string basePath, Network net, string words, ScriptPubKeyType scriptPubKeyType, string password)
-        {
-            Console.WriteLine("-------------------------------------");
-            Console.WriteLine($" basePath: {basePath}");
-            Console.WriteLine($" words: {words}");
-            Console.WriteLine();
-            //https://stackoverflow.com/questions/46550818/nbitcoin-and-mnemonic-standards
-            Mnemonic mnemo = new Mnemonic(words, Wordlist.English);
-            ExtKey hdroot = mnemo.DeriveExtKey();
-            for (int i = 0; i < 10; i++)
-            {
-                var privkey = hdroot.Derive(new NBitcoin.KeyPath(basePath + "/0/" + i.ToString()));
-                var publicKey = privkey.Neuter().PubKey;
-                var privateKey = privkey.Neuter().GetWif(net);
-                var address = publicKey.GetAddress(scriptPubKeyType, net).ToString();
-                Console.WriteLine($"{ net.ToString() } , public key : { address} , privateKey {privateKey}");
-                Console.WriteLine("");
-            }
-
-
-            ExtKey masterKey = hdroot.Derive(new NBitcoin.KeyPath(basePath));
-            string masterPublicKey = masterKey.Neuter().GetWif(net).ToString();
-            string masterPrivateKey = masterKey.GetWif(net).ToString();
-            Console.WriteLine($"");
-            Console.WriteLine($"MasterPrivateKey : {net.ToString()} {masterPrivateKey} ");
-            Console.WriteLine($"MasterPublicKey  : {net.ToString()} {masterPublicKey} ");
-            Console.WriteLine($"");
-            Console.WriteLine("-------------------------------------");
-
-
-            /* Console.WriteLine("Master key 11111 : " + hdroot.ToString(net));
-             ExtPubKey masterPubKey = hdroot.Neuter();
-             Console.WriteLine("Master PubKey  " + masterPubKey.ToString(net));
-             Console.WriteLine();
-             Console.WriteLine();
-             */
-        }
 
 
         private static void MasterPublicKeyAndPrivateKey(string path, Network net, string words, string password)
